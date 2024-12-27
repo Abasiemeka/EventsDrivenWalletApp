@@ -1,0 +1,299 @@
+{
+    "info": {
+        "_postman_id": "243a8638-b213-43c4-a97d-df28a9f0e366",
+        "name": "Wollette App API - Contract Tests",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Register User Contract",
+            "request": {
+                "method": "POST",
+                "header": {
+                    "Content-Type": "application/json"
+                },
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"email\": \"{{Email}}\",\n  \"password\": \"{{Password}}\",\n  \"firstName\": \"{{FirstName}}\",\n \"middleName\": \"{{MiddleName}}\",\n  \"lastName\": \"{{LastName}}\",\n \"dateOfBirth\": \"{{DateOfBirth}}\",\n \"address\": \"{{Address}}\",\n \"bvn\": \"{{BVN}}\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/auth/register",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "auth",
+                        "register"
+                    ]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Register User Response Contract\", function () {",
+                            "    if (pm.response.code === 200) {",
+                            "        pm.expect(pm.response.json()).to.be.an('object');",
+                            "        pm.expect(pm.response.json()).to.have.all.keys('id', 'email', 'firstName', 'middleName', 'lastName', 'dateOfBirth', 'address', 'bvn');",
+                            "        pm.expect(pm.response.json().id).to.be.a('number');",
+                            "        pm.expect(pm.response.json().email).to.be.a('string');",
+                            "        pm.expect(pm.response.json().bvn).to.be.a('number');",
+                            "    } else if (pm.response.code === 400 || pm.response.code === 422) { // Expected validation errors",
+                            "        pm.expect(pm.response.json()).to.be.an('object');",
+                            "        pm.expect(pm.response.json()).to.have.property('message');",
+                            "        let errorMessage = pm.response.json().message.toLowerCase();",
+                            "        if (errorMessage.includes(\"bvn\")) {",
+                            "            pm.expect(bvn).to.match(/^[0-9]{11}$/);",
+                            "        }",
+                            "    } else{",
+                            "       pm.expect.fail(\"Unexpected Status Code: \" + pm.response.code + \"\\nResponse: \" + pm.response.text());",
+                            "    }",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Login User Contract",
+            "request": {
+                "method": "POST",
+                "header": {
+                    "Content-Type": "application/json"
+                },
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"email\": \"{{Email}}\",\n  \"password\": \"{{Password}}\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/auth/login",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "auth",
+                        "login"
+                    ]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Login User Response Contract\", function () {",
+                            "    if (pm.response.code === 200) {",
+                            "        pm.expect(pm.response.json()).to.be.an('object');",
+                            "        pm.expect(pm.response.json()).to.have.property('token');",
+                            "        pm.expect(pm.response.json().token).to.be.a('string');",
+                            "        pm.environment.set(\"jwtToken\", pm.response.json().token);",
+                            "    } else if (pm.response.code === 401) {",
+                            "        pm.expect(pm.response.json()).to.be.an('object');",
+                            "        pm.expect(pm.response.json()).to.have.property('message');",
+                            "    } else{",
+                            "       pm.expect.fail(\"Unexpected Status Code: \" + pm.response.code + \"\\nResponse: \" + pm.response.text());",
+                            "    }",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Fund Wallet Contract",
+            "request": {
+                "method": "POST",
+                "header": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer {{jwtToken}}"
+                },
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"amount\": {{$randomInt(1, 1000)}}}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/wallet/fund",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "wallet",
+                        "fund"
+                    ]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Fund Wallet Response Contract\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "    pm.expect(pm.response.text()).to.be.a('string'); // Or check for a specific success message",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Transfer Funds Contract",
+            "request": {
+                "method": "POST",
+                "header": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer {{jwtToken}}"
+                },
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"recipientEmail\": \"test2@example.com\", \"amount\": {{$randomInt(1, 50)}}}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/wallet/transfer",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "wallet",
+                        "transfer"
+                    ]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Transfer Funds Response Contract\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "    pm.expect(pm.response.text()).to.be.a('string');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Withdraw Funds Contract",
+            "request": {
+                "method": "POST",
+                "header": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer {{jwtToken}}"
+                },
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"amount\": {{$randomInt(1, 50)}}}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/wallet/withdraw",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "wallet",
+                        "withdraw"
+                    ]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Withdraw Funds Response Contract\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "    pm.expect(pm.response.text()).to.be.a('string');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Get Transaction By ID Contract",
+            "request": {
+                "method": "GET",
+                "header": {
+                    "Authorization": "Bearer {{jwtToken}}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "transactions",
+                        "{{transactionId}}"
+                    ]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Get Transaction Response Contract\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "    pm.expect(pm.response.json()).to.be.an('object');",
+                            "    pm.expect(pm.response.json()).to.have.all.keys('id', 'senderWallet', 'receiverWallet', 'amount', 'timestamp', 'transactionType');",
+                            "    // Add more specific type checks as needed",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:7075",
+            "type": "string"
+        }
+    ]
+}

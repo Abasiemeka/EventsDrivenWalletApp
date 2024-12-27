@@ -1,0 +1,364 @@
+{
+    "info": {
+        "_postman_id": "efa7b681-80cb-4398-944f-d3383f4ba3a0",
+        "name": "Wollette App API - Performance Tests",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Register User",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"email\": \"{{Email}}\",\n  \"password\": \"{{Password}}\",\n  \"firstName\": \"{{FirstName}}\",\n  \"middleName\": \"{{MiddleName}}\",\n  \"lastName\": \"{{LastName}}\",\n  \"dateOfBirth\": \"{{DateOfBirth}}\",\n  \"address\": \"{{Address}}\",\n  \"bvn\": \"{{BVN}}\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/auth/register",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "auth", "register"]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Successful Registration\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "    const jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.be.an('object');",
+                            "    pm.expect(jsonData).to.have.all.keys('id', 'email', 'firstName', 'middleName', 'lastName', 'dateOfBirth', 'address', 'bvn');",
+                            "    pm.environment.set(\"registeredUserId\", jsonData.id);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Login User",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"email\": \"{{Email}}\",\n  \"password\": \"{{Password}}\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/auth/login",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "auth", "login"]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Successful Login\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "    const jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.be.an('object');",
+                            "    pm.expect(jsonData).to.have.property('token');",
+                            "    pm.environment.set(\"jwtToken\", jsonData.token);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Fund Wallet",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"amount\": {{$randomInt(100, 1000)}}}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/wallet/fund",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "wallet", "fund"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Get Wallet Balance",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/api/wallet/balance",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "wallet", "balance"]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Get Wallet Balance - Success\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "    const jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.be.an('object');",
+                            "    pm.expect(jsonData).to.have.property('balance');",
+                            "    pm.environment.set(\"initialBalance\", jsonData.balance);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Transfer Funds",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"recipientEmail\": \"test2@example.com\",\n  \"amount\": {{$randomInt(1, 50)}}\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/wallet/transfer",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "wallet", "transfer"]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Transfer Funds - Success\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Get Wallet Balance After Transfer",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/api/wallet/balance",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "wallet", "balance"]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Check Balance After Transfer\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "    const jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.be.an('object');",
+                            "    pm.expect(jsonData).to.have.property('balance');",
+                            "    pm.expect(jsonData.balance).to.be.below(pm.environment.get(\"initialBalance\"));",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Withdraw Funds",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"amount\": {{$randomInt(1, 50)}}}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/wallet/withdraw",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "wallet", "withdraw"]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Withdraw Funds - Success\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Get Transaction History",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/api/transactions",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "transactions"]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Get Transaction History - Success\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "    const jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.be.an('array');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        },
+        {
+            "name": "Get Transaction By Id",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "transactions", "{{transactionId}}"]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Get Transaction By Id - Success\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "    const jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.be.an('object');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:7075",
+            "type": "string"
+        },
+        {
+            "key": "transactionId",
+            "value": "1",
+            "type": "string"
+        }
+    ]
+}

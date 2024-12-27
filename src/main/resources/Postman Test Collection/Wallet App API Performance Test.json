@@ -1,0 +1,199 @@
+{
+  "info": {
+    "_postman_id": "069e0e9d-600c-46d4-aa08-7cdb811be0b0",
+    "name": "Wallet App API - Contract Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register User Contract",
+      "request": {
+        "method": "POST",
+        "header": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{$randomEmail}}\",\n  \"password\": \"password123\",\n  \"firstName\": \"{{$randomFirstName}}\",\n  \"lastName\": \"{{$randomLastName}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Register User Response Schema\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json()).to.be.an('object');",
+              "    pm.expect(pm.response.json()).to.have.all.keys('id', 'email', 'firstName', 'lastName'); // Expected keys",
+              "    pm.expect(pm.response.json().id).to.be.a('number');",
+              "    pm.expect(pm.response.json().email).to.be.a('string');",
+              "    pm.expect(pm.response.json().firstName).to.be.a('string');",
+              "    pm.expect(pm.response.json().lastName).to.be.a('string');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Login User Contract",
+      "request": {
+        "method": "POST",
+        "header": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"password123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Login User Response Schema\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json()).to.be.an('object');",
+              "    pm.expect(pm.response.json()).to.have.property('token');",
+              "    pm.expect(pm.response.json().token).to.be.a('string');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Get Wallet Balance Contract",
+      "request": {
+        "method": "GET",
+        "header": {
+          "Authorization": "Bearer {{jwtToken}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/wallet/balance",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "wallet",
+            "balance"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Get Wallet Balance Response Schema\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json()).to.be.an('object');",
+              "    pm.expect(pm.response.json()).to.have.property('balance');",
+              "    pm.expect(pm.response.json().balance).to.be.a('number');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Error Response Contract",
+      "request": {
+        "method": "POST",
+        "header": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"invalid-email\",\n  \"password\": \"wrong-password\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Error Response Schema\", function () {",
+              "    pm.response.to.have.status(401);",
+              "    pm.expect(pm.response.json()).to.be.an('object');",
+              "    pm.expect(pm.response.json()).to.have.property('message');",
+              "    pm.expect(pm.response.json().message).to.be.a('string');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "test@example.com",
+      "type": "string"
+    }
+  ]
+}

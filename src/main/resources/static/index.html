@@ -1,0 +1,130 @@
+<html>
+<head>
+    <base href="." />
+    <title>Wallet App</title>
+    <script src="./js/script.js" defer></script>
+</head>
+<body>
+<div class="container">
+    <div class="tabs">
+        <div class="tab active">Dashboard</div>
+        <div class="tab">Fund Wallet</div>
+        <div class="tab">Transfer</div>
+        <div class="tab">Withdraw</div>
+        <div class="tab">Transactions</div>
+        <div class="tab">Profile</div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="tab-content active">
+        <div class="balance-card">
+            <h3>Wallet Balance</h3>
+            <h2>₦ 150,000.00</h2>
+            <div class="wallet-tier">
+                Tier: Gold
+                <div class="limit-info">Daily Limit: ₦500,000 | Weekly Limit: ₦2,000,000</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Recent Transactions</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-07-20</td>
+                        <td>Transfer to John</td>
+                        <td class="debit">Debit</td>
+                        <td>₦5,000</td>
+                    </tr>
+                    <tr>
+                        <td>2023-07-19</td>
+                        <td>Wallet Funding</td>
+                        <td class="credit">Credit</td>
+                        <td>₦10,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Fund Wallet -->
+    <div class="tab-content">
+        <div class="card">
+            <h3>Fund Wallet</h3>
+            <form>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" placeholder="Enter amount">
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select>
+                        <option>Debit Card</option>
+                        <option>Bank Transfer</option>
+                        <option>USSD</option>
+                    </select>
+                </div>
+                <button class="btn">Proceed to Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transfer -->
+    <div class="tab-content">
+        <div class="card">
+            <h3>Transfer Funds</h3>
+            <form>
+                <div class="form-group">
+                    <label>Recipient Wallet ID</label>
+                    <input type="text" placeholder="Enter wallet ID">
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" placeholder="Enter amount">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" placeholder="Enter description">
+                </div>
+                <button class="btn">Transfer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Withdraw -->
+    <div class="tab-content">
+        <div class="card">
+            <h3>Withdraw Funds</h3>
+            <form>
+                <div class="form-group">
+                    <label>Bank Account</label>
+                    <input type="text" placeholder="Enter account number">
+                </div>
+                <div class="form-group">
+                    <label>Bank</label>
+                    <select>
+                        <option>Select Bank</option>
+                        <option>Access Bank</option>
+                        <option>GTBank</option>
+                        <option>First Bank</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" placeholder="Enter amount">
+                </div>
+                <button class="btn">Withdraw</button>
+            </form>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="./style/style.css">
+</body></html>
