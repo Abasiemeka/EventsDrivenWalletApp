@@ -5,30 +5,15 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.ApplicationEvent;
 
+@Getter
 public class WithdrawalEvent extends ApplicationEvent {
-    private Long userId;
-    private WithdrawalDto withdrawalDto;
+    private final Long userId;
+    private final WithdrawalDto withdrawalDto;
 
     public WithdrawalEvent(Object source, Long userId, WithdrawalDto withdrawalDto) {
         super(source);
         this.userId = userId;
         this.withdrawalDto = withdrawalDto;
-    }
-    
-    public Long getUserId() {
-	    return this.userId;
-    }
-
-    public WithdrawalDto getWithdrawalDto() {
-	    return this.withdrawalDto;
-    }
-
-    public void setWithdrawalDto(WithdrawalDto withdrawalDto) {
-	    this.withdrawalDto = withdrawalDto;
-    }
-
-    public void setUserId(Long userId) {
-	    this.userId = userId;
     }
 }
 
