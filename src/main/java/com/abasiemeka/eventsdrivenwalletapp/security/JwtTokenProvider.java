@@ -1,6 +1,9 @@
 package com.abasiemeka.eventsdrivenwalletapp.security;
 
+import com.abasiemeka.eventsdrivenwalletapp.exceptionHandler.exception.InvalidJwtAuthenticationException;
+import com.abasiemeka.eventsdrivenwalletapp.model.enums.UserRole;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -8,21 +11,22 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import java.util.Base64;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
 
-    @Value("${security.jwt.token.secret-key:secret}")
-    private String secretKey = "secret";
+    @Value("${app.jwtSecret}")
+    private String secretKey;
 
     @Value("${security.jwt.token.expire-length:3600000}")
     private long validityInMilliseconds = 3600000; // 1h
 
     private final UserDetailsService userDetailsService;
+    private Key key;
 
     public JwtTokenProvider(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -30,7 +34,7 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init() {
-        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+        key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
     public String createToken(String username, Long userId, UserRole role) {
@@ -45,7 +49,7 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(validity)
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }
 
@@ -55,7 +59,11 @@ public class JwtTokenProvider {
     }
 
     public String getUsername(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        return
+                Jwts.parser().setSigningKey(key)
+                        .parseClaimsJws(token)
+                        .getBody()
+                        .getSubject();
     }
 
     public String resolveToken(HttpServletRequest req) {
@@ -68,21 +76,11 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            Jws<Claims> claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
             return !claims.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
             throw new InvalidJwtAuthenticationException("Expired or invalid JWT token");
         }
-    }
-}
-
-enum UserRole {
-    USER, ADMIN
-}
-
-class InvalidJwtAuthenticationException extends RuntimeException {
-    public InvalidJwtAuthenticationException(String msg) {
-        super(msg);
     }
 }
 

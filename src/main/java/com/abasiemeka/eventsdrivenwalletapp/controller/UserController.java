@@ -12,16 +12,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
-@RequiredArgsConstructor
 public class UserController {
 
     private final ApplicationEventPublisher eventPublisher;
-
-    @PostMapping("/register")
+	
+	public UserController(ApplicationEventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+	}
+	
+	@PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody UserRegistrationDto userRegistrationDto) {
         eventPublisher.publishEvent(new UserRegistrationEvent(this, userRegistrationDto));
         return ResponseEntity.ok("User registration event published");

@@ -4,13 +4,20 @@ import com.abasiemeka.eventsdrivenwalletapp.dto.LoginDto;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
-@Getter
 public class LoginEvent extends ApplicationEvent {
-    private final LoginDto loginDto;
+    private LoginDto loginDto;
 
     public LoginEvent(Object source, LoginDto loginDto) {
         super(source);
         this.loginDto = loginDto;
+    }
+    
+    public LoginDto getLoginDto() {
+	    return this.loginDto;
+    }
+    
+    public void setLoginDto(LoginDto loginDto) {
+	    this.loginDto = loginDto;
     }
 }
 

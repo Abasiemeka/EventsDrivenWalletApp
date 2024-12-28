@@ -5,10 +5,11 @@ import com.abasiemeka.eventsdrivenwalletapp.dto.UserRegistrationDto;
 import com.abasiemeka.eventsdrivenwalletapp.event.LoginEvent;
 import com.abasiemeka.eventsdrivenwalletapp.event.UserRegistrationEvent;
 import com.abasiemeka.eventsdrivenwalletapp.model.User;
+import com.abasiemeka.eventsdrivenwalletapp.model.enums.UserRole;
 import com.abasiemeka.eventsdrivenwalletapp.model.Wallet;
-import com.abasiemeka.eventsdrivenwalletapp.model.WalletTier;
+import com.abasiemeka.eventsdrivenwalletapp.model.enums.WalletTier;
 import com.abasiemeka.eventsdrivenwalletapp.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import com.abasiemeka.eventsdrivenwalletapp.security.JwtTokenProvider;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,22 +18,25 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-
-    @EventListener
+	
+	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+		this.jwtTokenProvider = jwtTokenProvider;
+	}
+	
+	@EventListener(defaultExecution = false)
     @Transactional
     public void handleUserRegistration(UserRegistrationEvent event) {
         UserRegistrationDto dto = event.getUserRegistrationDto();
         
         // TODO: Implement BVN validation (mocked for now)
-        boolean bvnValid = validateBvn(dto.bvn());
-        
-        if (!bvnValid) {
+        if (!validateBvn(dto.bvn())) {
             throw new IllegalArgumentException("Invalid BVN");
         }
 
@@ -45,6 +49,7 @@ public class UserService {
         user.setDateOfBirth(dto.dateOfBirth());
         user.setAddress(dto.address());
         user.setBvn(dto.bvn());
+        user.setRole(UserRole.ROLE_USER);
 
         Wallet wallet = new Wallet();
         wallet.setUser(user);
@@ -58,7 +63,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    @EventListener
+    @EventListener(defaultExecution = false)
     public String handleLogin(LoginEvent event) {
         LoginDto dto = event.getLoginDto();
         User user = userRepository.findByEmail(dto.email())
@@ -73,7 +78,9 @@ public class UserService {
 
     private boolean validateBvn(String bvn) {
         // TODO: Implement actual BVN validation logic
-        return true; // Mocked implementation
+        
+        String trimmedBvn = bvn.trim();
+        return trimmedBvn.length() == 11 && trimmedBvn.matches("\\d");  // Mocked implementation
     }
 }
 

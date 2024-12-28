@@ -13,20 +13,24 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/wallets")
-@RequiredArgsConstructor
 public class WalletController {
 
     private final ApplicationEventPublisher eventPublisher;
+    
+    private WalletController(ApplicationEventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+	}
 
     @PostMapping("/fund")
     public ResponseEntity<String> fundWallet(@AuthenticationPrincipal UserDetails userDetails,
                                              @Valid @RequestBody WalletFundingDto walletFundingDto) {
         Long userId = getUserIdFromUserDetails(userDetails);
         eventPublisher.publishEvent(new WalletFundingEvent(this, userId, walletFundingDto));
+        
         return ResponseEntity.ok("Wallet funding event published");
     }
 
@@ -35,6 +39,7 @@ public class WalletController {
                                                 @Valid @RequestBody TransferDto transferDto) {
         Long userId = getUserIdFromUserDetails(userDetails);
         eventPublisher.publishEvent(new TransferEvent(this, userId, transferDto));
+        
         return ResponseEntity.ok("Transfer event published");
     }
 
@@ -43,6 +48,7 @@ public class WalletController {
                                                 @Valid @RequestBody WithdrawalDto withdrawalDto) {
         Long userId = getUserIdFromUserDetails(userDetails);
         eventPublisher.publishEvent(new WithdrawalEvent(this, userId, withdrawalDto));
+        
         return ResponseEntity.ok("Withdrawal event published");
     }
 
@@ -50,6 +56,7 @@ public class WalletController {
     public ResponseEntity<String> getBalance(@AuthenticationPrincipal UserDetails userDetails) {
         Long userId = getUserIdFromUserDetails(userDetails);
         // TODO: Implement balance retrieval logic
+        
         return ResponseEntity.ok("Balance retrieval not implemented yet");
     }
 
@@ -57,11 +64,13 @@ public class WalletController {
     public ResponseEntity<String> getTransactionHistory(@AuthenticationPrincipal UserDetails userDetails) {
         Long userId = getUserIdFromUserDetails(userDetails);
         // TODO: Implement transaction history retrieval logic
+        
         return ResponseEntity.ok("Transaction history retrieval not implemented yet");
     }
 
     private Long getUserIdFromUserDetails(UserDetails userDetails) {
         // TODO: Implement logic to extract user ID from UserDetails
+        
         return 1L; // Placeholder implementation
     }
 }

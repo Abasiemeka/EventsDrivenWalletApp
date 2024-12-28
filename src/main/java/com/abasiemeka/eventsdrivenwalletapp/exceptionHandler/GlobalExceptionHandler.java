@@ -1,5 +1,6 @@
-package com.abasiemeka.eventsdrivenwalletapp.exception;
+package com.abasiemeka.eventsdrivenwalletapp.exceptionHandler;
 
+import com.abasiemeka.eventsdrivenwalletapp.exceptionHandler.exception.InvalidJwtAuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

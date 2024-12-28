@@ -4,7 +4,7 @@ import com.abasiemeka.eventsdrivenwalletapp.event.TransferEvent;
 import com.abasiemeka.eventsdrivenwalletapp.event.WalletFundingEvent;
 import com.abasiemeka.eventsdrivenwalletapp.event.WithdrawalEvent;
 import com.abasiemeka.eventsdrivenwalletapp.model.Transaction;
-import com.abasiemeka.eventsdrivenwalletapp.model.TransactionType;
+import com.abasiemeka.eventsdrivenwalletapp.model.enums.TransactionType;
 import com.abasiemeka.eventsdrivenwalletapp.model.User;
 import com.abasiemeka.eventsdrivenwalletapp.model.Wallet;
 import com.abasiemeka.eventsdrivenwalletapp.repository.TransactionRepository;
@@ -19,14 +19,19 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
 public class WalletService {
 
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
-
-    @EventListener
+	
+	public WalletService(WalletRepository walletRepository, UserRepository userRepository, TransactionRepository transactionRepository) {
+		this.walletRepository = walletRepository;
+		this.userRepository = userRepository;
+		this.transactionRepository = transactionRepository;
+	}
+	
+	@EventListener(defaultExecution = false)
     @Transactional
     public void handleWalletFunding(WalletFundingEvent event) {
         User user = userRepository.findById(event.getUserId())
@@ -47,7 +52,7 @@ public class WalletService {
         transactionRepository.save(transaction);
     }
 
-    @EventListener
+    @EventListener(defaultExecution = false)
     @Transactional
     public void handleTransfer(TransferEvent event) {
         User sender = userRepository.findById(event.getSenderId())
@@ -86,7 +91,7 @@ public class WalletService {
         transactionRepository.save(recipientTransaction);
     }
 
-    @EventListener
+    @EventListener(defaultExecution = false)
     @Transactional
     public void handleWithdrawal(WithdrawalEvent event) {
         User user = userRepository.findById(event.getUserId())

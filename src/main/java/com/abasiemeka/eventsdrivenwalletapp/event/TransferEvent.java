@@ -1,18 +1,32 @@
 package com.abasiemeka.eventsdrivenwalletapp.event;
 
 import com.abasiemeka.eventsdrivenwalletapp.dto.TransferDto;
-import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
-@Getter
 public class TransferEvent extends ApplicationEvent {
-    private final Long senderId;
-    private final TransferDto transferDto;
+    private Long senderId;
+    private TransferDto transferDto;
 
     public TransferEvent(Object source, Long senderId, TransferDto transferDto) {
         super(source);
         this.senderId = senderId;
         this.transferDto = transferDto;
+    }
+    
+    public Long getSenderId() {
+	    return this.senderId;
+    }
+    
+    public TransferDto getTransferDto() {
+	    return this.transferDto;
+    }
+    
+    public void setTransferDto(TransferDto transferDto) {
+	    this.transferDto = transferDto;
+    }
+    
+    public void setSenderId(Long senderId) {
+	    this.senderId = senderId;
     }
 }
 

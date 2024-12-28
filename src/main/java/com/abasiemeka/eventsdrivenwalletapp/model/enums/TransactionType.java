@@ -1,4 +1,4 @@
-package com.abasiemeka.eventsdrivenwalletapp.model;
+package com.abasiemeka.eventsdrivenwalletapp.model.enums;
 
 public enum TransactionType {
     FUNDING,

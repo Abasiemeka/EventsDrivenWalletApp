@@ -1,8 +1,9 @@
 package com.abasiemeka.eventsdrivenwalletapp.exceptionHandler.exception;
 
-public class InvalidJwtAuthenticationException extends RuntimeException {
-    public InvalidJwtAuthenticationException(String message) {
+import org.springframework.web.context.request.WebRequest;
+
+public class illegalArgumentExceptionHandler extends RuntimeException {
+    public illegalArgumentExceptionHandler(String message) {
         super(message);
     }
 }
-

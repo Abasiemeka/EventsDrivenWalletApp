@@ -1,12 +1,18 @@
 package com.abasiemeka.eventsdrivenwalletapp.model;
 
+import com.abasiemeka.eventsdrivenwalletapp.model.enums.UserRole;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import lombok.Setter;
+
 import java.time.LocalDate;
 
 @Data
+@Setter
+@Getter
 @NoArgsConstructor
 @Entity
 @Table(name = "users")

@@ -1,4 +1,4 @@
-package com.abasiemeka.eventsdrivenwalletapp.exception;
+package com.abasiemeka.eventsdrivenwalletapp.exceptionHandler;
 
 import java.time.LocalDateTime;
 

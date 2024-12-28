@@ -1,12 +1,18 @@
 package com.abasiemeka.eventsdrivenwalletapp.model;
 
+import com.abasiemeka.eventsdrivenwalletapp.model.enums.WalletTier;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "wallets")

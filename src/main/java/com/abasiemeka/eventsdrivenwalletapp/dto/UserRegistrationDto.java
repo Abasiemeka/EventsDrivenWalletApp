@@ -1,6 +1,6 @@
 package com.abasiemeka.eventsdrivenwalletapp.dto;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
 public record UserRegistrationDto(
