@@ -14,7 +14,6 @@ import com.abasiemeka.eventsdrivenwalletapp.model.enums.TransactionType;
 import com.abasiemeka.eventsdrivenwalletapp.repository.TransactionRepository;
 import com.abasiemeka.eventsdrivenwalletapp.repository.UserRepository;
 import com.abasiemeka.eventsdrivenwalletapp.repository.WalletRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
