@@ -9,8 +9,11 @@ import com.abasiemeka.eventsdrivenwalletapp.model.enums.UserRole;
 import com.abasiemeka.eventsdrivenwalletapp.model.Wallet;
 import com.abasiemeka.eventsdrivenwalletapp.model.enums.WalletTier;
 import com.abasiemeka.eventsdrivenwalletapp.repository.UserRepository;
+import com.abasiemeka.eventsdrivenwalletapp.repository.WalletRepository;
 import com.abasiemeka.eventsdrivenwalletapp.security.JwtTokenProvider;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,22 +25,25 @@ public class UserService {
 	
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final JwtTokenProvider jwtTokenProvider;
+	private final WalletRepository walletRepository;
 	
-	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, WalletRepository walletRepository) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
-		this.jwtTokenProvider = jwtTokenProvider;
+		this.walletRepository = walletRepository;
 	}
 	
 	@EventListener(defaultExecution = false)
 	@Transactional
-	public void handleUserRegistration(UserRegistrationEvent event) {
+	public User registerUser(UserRegistrationEvent event) {
 		UserRegistrationDto dto = event.getUserRegistrationDto();
+		if (userRepository.existsByEmail(dto.email())) {
+			throw new RuntimeException("Email already exists");
+		}
 		
-		// TODO: Implement BVN validation (mocked for now)
+		// Mock BVN validation
 		if (!validateBvn(dto.bvn())) {
-			throw new IllegalArgumentException("Invalid BVN");
+			throw new RuntimeException("Invalid BVN");
 		}
 		
 		User user = new User();
@@ -51,35 +57,47 @@ public class UserService {
 		user.setBvn(dto.bvn());
 		user.setRole(UserRole.ROLE_USER);
 		
+		User savedUser = userRepository.save(user);
+		
 		Wallet wallet = new Wallet();
-		wallet.setUser(user);
+		wallet.setUser(savedUser);
 		wallet.setBalance(BigDecimal.ZERO);
 		wallet.setTier(WalletTier.BASIC);
-		wallet.setDailyLimit(BigDecimal.valueOf(50000));
-		wallet.setWeeklyLimit(BigDecimal.valueOf(100000));
+		wallet.setDailyLimit(new BigDecimal("1000"));
+		wallet.setWeeklyLimit(new BigDecimal("5000"));
+		walletRepository.save(wallet);
 		
-		user.setWallet(wallet);
-		
-		userRepository.save(user);
-	}
-	
-	@EventListener(defaultExecution = false)
-	public String handleLogin(LoginEvent event) {
-		LoginDto dto = event.getLoginDto();
-		User user = userRepository.findByEmail(dto.email())
-				.orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
-		
-		if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
-			throw new IllegalArgumentException("Invalid email or password");
-		}
-		
-		return jwtTokenProvider.createToken(user.getEmail(), user.getId(), user.getRole());
+		savedUser.setWallet(wallet);
+		return userRepository.save(savedUser);
 	}
 	
 	private boolean validateBvn(String bvn) {
-		// TODO: Implement actual BVN validation logic
+		// Mock BVN validation
+		return bvn != null && bvn.length() == 11;
+	}
+	
+	public User loginUser(LoginEvent event) {
+		LoginDto dto = event.getLoginDto();
+		User user = userRepository.findByEmail(dto.email())
+				.orElseThrow(() -> new RuntimeException("User not found"));
 		
-		String trimmedBvn = bvn.trim();
-		return trimmedBvn.length() == 11 && trimmedBvn.matches("\\d");  // Mocked implementation
+		if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
+			throw new RuntimeException("Invalid credentials");
+		}
+		
+		return user;
+	}
+	
+	public Long getUserIdFromUserDetails(UserDetails userDetails) {
+		if (userDetails == null) {
+			throw new IllegalArgumentException("UserDetails cannot be null");
+		}
+		
+		User user = userRepository.findByEmail(userDetails.getUsername())
+				.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userDetails.getUsername()));
+		
+		return user.getId();
 	}
 }
+
+

@@ -4,14 +4,12 @@ import com.abasiemeka.eventsdrivenwalletapp.dto.LoginDto;
 import com.abasiemeka.eventsdrivenwalletapp.dto.UserRegistrationDto;
 import com.abasiemeka.eventsdrivenwalletapp.event.LoginEvent;
 import com.abasiemeka.eventsdrivenwalletapp.event.UserRegistrationEvent;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import jakarta.validation.Valid;
 
 @RestController

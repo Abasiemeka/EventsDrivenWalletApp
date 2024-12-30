@@ -1,12 +1,14 @@
 package com.abasiemeka.eventsdrivenwalletapp.controller;
 
+import com.abasiemeka.eventsdrivenwalletapp.dto.TransactionHistoryDto;
 import com.abasiemeka.eventsdrivenwalletapp.dto.TransferDto;
 import com.abasiemeka.eventsdrivenwalletapp.dto.WalletFundingDto;
 import com.abasiemeka.eventsdrivenwalletapp.dto.WithdrawalDto;
 import com.abasiemeka.eventsdrivenwalletapp.event.TransferEvent;
 import com.abasiemeka.eventsdrivenwalletapp.event.WalletFundingEvent;
 import com.abasiemeka.eventsdrivenwalletapp.event.WithdrawalEvent;
-import lombok.RequiredArgsConstructor;
+import com.abasiemeka.eventsdrivenwalletapp.service.UserService;
+import com.abasiemeka.eventsdrivenwalletapp.service.WalletService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,17 +16,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/wallets")
 public class WalletController {
-
-    private final ApplicationEventPublisher eventPublisher;
     
-    private WalletController(ApplicationEventPublisher eventPublisher) {
-		this.eventPublisher = eventPublisher;
-	}
-
+    private final ApplicationEventPublisher eventPublisher;
+    private final UserService userService;
+    private final WalletService walletService;
+    
+    public WalletController(ApplicationEventPublisher eventPublisher, UserService userService, WalletService walletService) {
+        this.eventPublisher = eventPublisher;
+        this.userService = userService;
+        this.walletService = walletService;
+    }
+    
     @PostMapping("/fund")
     public ResponseEntity<String> fundWallet(@AuthenticationPrincipal UserDetails userDetails,
                                              @Valid @RequestBody WalletFundingDto walletFundingDto) {
@@ -33,7 +41,7 @@ public class WalletController {
         
         return ResponseEntity.ok("Wallet funding event published");
     }
-
+    
     @PostMapping("/transfer")
     public ResponseEntity<String> transferFunds(@AuthenticationPrincipal UserDetails userDetails,
                                                 @Valid @RequestBody TransferDto transferDto) {
@@ -42,7 +50,7 @@ public class WalletController {
         
         return ResponseEntity.ok("Transfer event published");
     }
-
+    
     @PostMapping("/withdraw")
     public ResponseEntity<String> withdrawFunds(@AuthenticationPrincipal UserDetails userDetails,
                                                 @Valid @RequestBody WithdrawalDto withdrawalDto) {
@@ -51,27 +59,25 @@ public class WalletController {
         
         return ResponseEntity.ok("Withdrawal event published");
     }
-
+    
     @GetMapping("/balance")
-    public ResponseEntity<String> getBalance(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<BigDecimal> getBalance(@AuthenticationPrincipal UserDetails userDetails) {
         Long userId = getUserIdFromUserDetails(userDetails);
-        // TODO: Implement balance retrieval logic
+        BigDecimal balance = walletService.getWalletBalance(userId);
         
-        return ResponseEntity.ok("Balance retrieval not implemented yet");
+        return ResponseEntity.ok(balance);
     }
-
+    
     @GetMapping("/transactions")
-    public ResponseEntity<String> getTransactionHistory(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<TransactionHistoryDto>> getTransactionHistory(@AuthenticationPrincipal UserDetails userDetails) {
         Long userId = getUserIdFromUserDetails(userDetails);
-        // TODO: Implement transaction history retrieval logic
+        List<TransactionHistoryDto> transactionHistory = walletService.getTransactionHistory(userId);
         
-        return ResponseEntity.ok("Transaction history retrieval not implemented yet");
+        return ResponseEntity.ok(transactionHistory);
     }
-
+    
     private Long getUserIdFromUserDetails(UserDetails userDetails) {
-        // TODO: Implement logic to extract user ID from UserDetails
-        
-        return 1L; // Placeholder implementation
+        return userService.getUserIdFromUserDetails(userDetails);
     }
 }
 
